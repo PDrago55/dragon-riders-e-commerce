@@ -6,7 +6,11 @@ const morgan = require("morgan");
 const companyData = require("./data/companies.json");
 const productData = require("./data/items.json");
 const _ = require("lodash");
-const { simulateProblems, getCountryList } = require("./helpers.js");
+const {
+  simulateProblems,
+  getCountryList,
+  getCountries,
+} = require("./handlers.js");
 const PORT = 4000;
 express()
   .use(function (req, res, next) {
@@ -30,10 +34,7 @@ express()
 
   //---Gets Country List in an Array---//
 
-  .get("/countries", (req, res) => {
-    const uniqueCountries = getCountryList();
-    res.status(200).send({ countries: uniqueCountries });
-  })
+  .get("/countries", getCountries)
 
   //DO NOT USE THIS ENDPOINT.... YET. Could be used for a company page...
 
