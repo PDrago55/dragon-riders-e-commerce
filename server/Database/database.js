@@ -1,7 +1,9 @@
 const { MongoClient } = require("mongodb");
 const assert = require("assert");
-const companyData = require("../../server/data/companies.json");
-const productData = require("../../server/data/items.json");
+const fs = require("file-system");
+
+const companyData = JSON.parse(fs.readFileSync("./data/companies.json"));
+const productData = JSON.parse(fs.readFileSync("./data/items.json"));
 
 const mainDatabase = async (req, res) => {
   const client = new MongoClient("mongodb://localhost:27017", {
@@ -10,9 +12,8 @@ const mainDatabase = async (req, res) => {
   await client.connect();
   console.log("connected database");
   const db = await client.db("dragonDb");
-  await db.collection("companyData").insertOne({ companyData });
-  await db.collection("productData").insertOne({ productData });
-
+  await db.collection("companyData").insertMany(companyData);
+  await db.collection("productData").insertMany(productData);
   await client.close();
   console.log("Closed");
 };
