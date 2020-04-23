@@ -1,29 +1,22 @@
-const companyData = require("./data/companies.json");
+"use strict";
+const companyData = require("../server/data/companies.json");
+const productData = require("../server/data/items.json");
+const { MongoClient } = require("mongodb");
 
-const MAX_DELAY = 1000;
-const FAILURE_ODDS = 0.05;
-
-const simulateProblems = (res, data) => {
-  const delay = Math.random() * MAX_DELAY;
-
-  setTimeout(() => {
-    const shouldError = Math.random() <= FAILURE_ODDS;
-
-    if (shouldError) {
-      res.sendStatus(500);
-      return;
-    }
-
-    res.json(data);
-  }, delay);
-};
-
-const getCountryList = () => {
-  const countryList = companyData.map((country) => {
-    return country.country;
+const getCountryList = async () => {
+  const client = new MongoClient("mongodb://localhost:27017", {
+    useUnifiedTopology: true,
   });
-  const uniqueCountries = Array.from(new Set(countryList));
-  return uniqueCountries;
+  try {
+    await client.connect();
+    console.log("connected - countryList");
+    const db = await client.db("dragonDb");
+    const countryList = await db.collection("companyData").distinct("country");
+    return countryList;
+  } catch (err) {
+    console.log(err);
+  }
+  await client.close();
 };
 
-module.exports = { simulateProblems, getCountryList };
+module.exports = { getCountryList };
